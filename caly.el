@@ -168,7 +168,10 @@ line."
           (widen))
       (goto-char (point-min)))
     (setq calendar-buffer orig-calendar-buffer)
-    (other-window 1)))
+    (other-window 1)
+
+  ;; show all holidays of the year
+  (list-holidays today-year)))
 
 
 ;; Copyright (C) 2013 Ivan Kanis
