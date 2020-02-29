@@ -171,7 +171,7 @@ line."
     (other-window 1)
 
   ;; show all holidays of the year
-  (list-holidays today-year)))
+  (list-holidays this-year)))
 
 
 ;; Copyright (C) 2013 Ivan Kanis
