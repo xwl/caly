@@ -116,9 +116,7 @@ line."
   (make-local-variable 'displayed-month) ; month in middle of window
   (make-local-variable 'displayed-year)  ; year in middle of window
   (setq displayed-month 1)
-  (setq displayed-year 2001)
-  (set (make-local-variable 'font-lock-defaults)
-       '(calendar-font-lock-keywords t)))
+  (setq displayed-year 2001))
 
 ;;;###autoload
 (defun caly ()
