@@ -44,63 +44,22 @@
 
 (defvar displayed-month)
 (defvar displayed-year)
+
 (defun caly-calendar-generate-month (month year indent)
-  "Produce a calendar for MONTH, YEAR on the Gregorian calendar.
-The calendar is inserted at the top of the buffer in which point is currently
-located, but indented INDENT spaces.  The indentation is done from the first
-character on the line and does not disturb the first INDENT characters on the
-line."
+  "Wrapper around `calendar-generate-month', returns rows for this month."
   (let ((blank-days                     ; at start of month
-         (mod
-          (- (calendar-day-of-week (list month 1 year))
-             calendar-week-start-day)
-          7))
-        (last (calendar-last-day-of-month month year))
-        (trunc (min calendar-intermonth-spacing
-                    (1- calendar-left-margin)))
-        (day 1)
-        (row 0)
-        string)
-    (calendar-move-to-column indent)
-    (insert
-     (calendar-string-spread (list calendar-month-header)
-                             ?\s calendar-month-digit-width))
-    (calendar-ensure-newline)
-    (calendar-insert-at-column indent calendar-intermonth-header trunc)
-    ;; Use the first two characters of each day to head the columns.
-    (dotimes (i 7)
-      (insert
-       (progn
-         (setq string
-               (calendar-day-name (mod (+ calendar-week-start-day i) 7) nil t))
-         (if enable-multibyte-characters
-             (truncate-string-to-width string calendar-day-header-width)
-           (substring string 0 calendar-day-header-width)))
-       (make-string (- calendar-column-width calendar-day-header-width) ?\s)))
-    (calendar-ensure-newline)
-    (calendar-insert-at-column indent calendar-intermonth-text trunc)
-    ;; Add blank days before the first of the month.
-    (insert (make-string (* blank-days calendar-column-width) ?\s))
-    ;; Put in the days of the month.
-    (dotimes (i last)
-      (setq day (1+ i))
-      ;; TODO should numbers be left-justified, centered...?
-      (insert (format (format "%%%dd%%s" calendar-day-digit-width) day
-                      (make-string
-                       (- calendar-column-width calendar-day-digit-width) ?\s)))
-      ;; 'date property prevents intermonth text confusing re-searches.
-      ;; (Tried intangible, it did not really work.)
-      (set-text-properties
-       (- (point) (1+ calendar-day-digit-width)) (1- (point))
-       `(mouse-face highlight help-echo ,(eval calendar-date-echo-text)
-                    date t))
-      (when (and (zerop (mod (+ day blank-days) 7))
-                 (/= day last))
-        (calendar-ensure-newline)
-        (setq row (1+ row))
-        (setq day (1+ day))              ; first day of next week
-        (calendar-insert-at-column indent calendar-intermonth-text trunc)))
-    row))
+         (mod (- (calendar-day-of-week (list month 1 year))
+                 calendar-week-start-day)
+              7))
+        (last (calendar-last-day-of-month month year)))
+    ;; needed so that when calendar-generate-month calls (goto-char
+    ;; (point-min)) won't mess up the year display.
+    (narrow-to-region (point) (point-max))
+    (calendar-generate-month month year indent)
+    (widen)
+    (- (/ (+ last blank-days) 7)
+       ;; no newline for the last row
+       (if (zerop (% (+ last blank-days) 7)) 1 0))))
 
 (defun caly-calendar-cursor-to-visible-date (date)
   "Move the cursor to DATE that is on the screen."
@@ -139,6 +98,7 @@ line."
 
 ;;;###autoload
 (defun caly ()
+  "Show a year calendar."
   (interactive)
   (let* ((today (calendar-current-date))
          (today-month (nth 0 today))
@@ -187,9 +147,8 @@ line."
           (widen))
       (goto-char (point-min)))
     (setq calendar-buffer orig-calendar-buffer)
-    (other-window 1)
 
-  ;; show all holidays of the year
-  (list-holidays this-year)))
+    ;; show all holidays of the year
+    (list-holidays this-year)))
 
 ;;; caly.el ends here
