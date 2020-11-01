@@ -1,6 +1,8 @@
 ;;; caly.el --- display year calendar
 
 ;; Copyright (C) 2013 Ivan Kanis
+;; Copyright (C) 2020 William Xu <william.xwl@gmail.com>
+;;
 ;; Author: Ivan Kanis
 ;;
 ;; This program is free software ; you can redistribute it and/or modify
