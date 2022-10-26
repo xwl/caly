@@ -151,4 +151,5 @@
     ;; show all holidays of the year
     (list-holidays this-year)))
 
+(provide 'caly)
 ;;; caly.el ends here
